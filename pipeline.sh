@@ -12,11 +12,11 @@ function main {
 	# fetch the TOBIKE data
 	wget http://www.tobike.it/frmLeStazioni.aspx -O $DATA/tobike.aspx;
 
-
 	# first parsing
 	cat $DATA/tobike.aspx | tr -d '\000' \
 	| grep -o "{RefreshMap(.*}" | sed 's/{RefreshMap(\(.*\))}/\1/' \
 	| sed "s|','|\n|g" | sed "s|'||g" > $DATA/tobike.parsed
+	echo "DONE: $DATA/tobike.parsed"
 
 
 	# get the station
@@ -25,7 +25,8 @@ function main {
 	| iconv -c -f utf-8 -t ascii \
 	| ruby -e 'puts readlines.map{|x| x.split "|" }.transpose.map{|x|x*" "}' \
 	| tr -s " " "\t" | cut -f1,6,7  | head -n -8 \
-	| ruby parse_status.rb > $LOG/$now.stations
+	| ruby parse_status.rb | awk 'OFS="\t" {print $1,$3,$5,$5/($5+$6+$7+0.01)}' > $LOG/$now.stations
+	echo "DONE: $LOG/$now.status"
 }
 
 
