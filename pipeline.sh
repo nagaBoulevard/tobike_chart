@@ -1,11 +1,17 @@
 
 function main {
+	# the folder of the downloaded data
 	DATA=./data/
 	mkdir -p $DATA
 
 	# log the station details
 	LOG=./log/
 	mkdir -p $LOG
+
+    # to store the output SVG
+    mkdir -p svg
+
+	# store the current time
 	now=`date | tr -s " " "_" `
 
 
@@ -27,6 +33,10 @@ function main {
 	| tr -s " " "\t" | cut -f1,6,7  | head -n -8 \
 	| ruby parse_status.rb | awk 'OFS="\t" {print $1,$3,$5,$5/($5+$6+$7+0.01)}' > $LOG/$now.stations
 	echo "DONE: $LOG/$now.status"
+
+
+	# $now.stations format:
+	# DATETIME	NAME	ACTIVE	FRACTION_ACTIVE
 }
 
 
@@ -35,5 +45,6 @@ end=$((SECONDS+259200));
 
 while [ $SECONDS -lt $end ]; do
 	main
-	sleep 1800 # sleeps for 30 minutes
+	#sleep 1800 # sleeps for 30 minutes
+	sleep 10
 done
